@@ -1,0 +1,13 @@
+# Detection
+mediapipe>=0.10.0
+
+# Evaluation
+pycocotools>=2.0.6
+
+# Images
+pillow>=9.0.0
+numpy>=1.24.0
+
+# COCO val2017
+# Images: http://images.cocodataset.org/zips/val2017.zip
+# Annotations: http://images.cocodataset.org/annotations/annotations_trainval2017.zip

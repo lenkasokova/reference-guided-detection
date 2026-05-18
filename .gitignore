@@ -1,0 +1,60 @@
+# Android / Gradle
+.gradle/
+**/build/
+**/.cxx/
+**/.externalNativeBuild/
+**/.kotlin/
+captures/
+.externalNativeBuild/
+
+# Android Studio / IntelliJ
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+# Local machine config (DON'T COMMIT)
+local.properties
+
+# Signing keys / secrets
+*.jks
+*.keystore
+**/google-services.json
+**/app/src/**/firebase*.json
+*.p12
+*.pem
+
+# Large model files
+src/android-app/app/src/main/assets/owlv*.tflite
+
+# Logs
+*.log
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+src/data/annotations_trainval2017/*
+src/data/*.zip
+src/data/val2017
+src/data/customData/
+
+# Training run outputs (checkpoints, plots, TensorBoard logs, history)
+src/embedding/runs/
+src/experiments/
+
+# PyTorch checkpoints
+*.pt
+*.pth
+
+*.tflite
+*.onnx
+
+master_thesis_latex_source/
+
