@@ -16,7 +16,7 @@ The [user guide](mobile_app_user_guide.pdf) describes how to use the application
 
 ## Overview
 
-This work presents an Android application for detecting and identifying visually similar objects using reference images. The user stores reference images with labels and descriptions and subsequently identifies similar objects in a live camera stream. The system is primarily focused on plant identification and comparison, but is designed to be extensible to other domains.
+This work presents an Android application for detecting and identifying visually similar objects using reference images. The user stores reference images with labels and descriptions and subsequently identifies similar objects in a live camera stream. The system is primarily focused on plant identification and comparison.
 
 Due to the computational constraints of existing one-shot and open-vocabulary detectors (e.g., OWL-ViT at ~86 M parameters proved too slow for real-time mobile inference), the proposed solution uses a **lightweight hybrid pipeline** built around embedding-based similarity comparison:
 
@@ -41,13 +41,32 @@ The trained and exported models are mainly stored in these folders:
 - `src/android-app/app/src/main/assets/detectionModel/`
   Detection models used by the Android app.
 
+### Models bundled in the Android app assets
+
+The application currently bundles the following models in `src/android-app/app/src/main/assets/`:
+
+| Category | Directory | Bundled models |
+|---|---|---|
+| Detection | `detectionModel/` | EfficientDet-Lite0 (`fp32`, `fp16`, `int8`), EfficientDet-Lite2 (`fp32`, `fp16`, `int8`) |
+| Embedding | `embeddingModel/mobilenet_v3_large/` | MobileNetV3 Large embedding (`fp32`), structured-pruned 30% fine-tuned (`float16`, `int8`), unstructured-pruned 30% (`float16`, `int8`) |
+| Segmentation | `segmentModel/` | EdgeSAM encoder/decoder (`fp32`, `fp16`, `int8`), MobileSAM encoder/decoder (`fp32`, `fp16`, `int8`) |
+
+Concrete files:
+
+- `detectionModel/`
+  `efficientdet_lite0.tflite`, `efficientdet_lite0_fp16.tflite`, `efficientdet_lite0_int8.tflite`, `efficientdet_lite2.tflite`, `efficientdet_lite2_fp16.tflite`, `efficientdet_lite2_int8.tflite`
+- `embeddingModel/mobilenet_v3_large/`
+  `embedding_fp32.tflite`, `embedding_pruned_structured_30pct_finetune_float16.tflite`, `embedding_pruned_structured_30pct_finetune_int8.tflite`, `embedding_pruned_unstructured_30pct_float16.tflite`, `embedding_pruned_unstructured_30pct_int8.tflite`
+- `segmentModel/`
+  `edgesam_encoder.onnx`, `edgesam_encoder_fp16.onnx`, `edgesam_encoder_int8.onnx`, `edgesam_decoder.onnx`, `edgesam_decoder_fp16.onnx`, `edgesam_decoder_int8.onnx`, `mobilesam_encoder.onnx`, `mobilesam_encoder_fp16.onnx`, `mobilesam_encoder_int8.onnx`, `mobilesam_decoder.onnx`, `mobilesam_decoder_fp16.onnx`, `mobilesam_decoder_int8.onnx`
+
 ## Project structure
 
 <details>
 <summary><strong>Expand</strong></summary>
 
 ```text
-reference-guided-detection/
+xsokov01-master-thesis/
 │
 ├── src/
 │   ├── embedding/                          # Metric-learning embedding pipeline
@@ -81,7 +100,7 @@ reference-guided-detection/
 │   │   └── requirements.txt
 │   ├── android-app/                        # Kotlin/Compose Android app
 │   │   └── ...
-│   └── data/                               # Datasets — not committed
+│   └── data/                               # Datasets
 │       └── custom dataset
 ├── master_thesis_latex_source/             # LaTeX thesis source
 │   └── ...

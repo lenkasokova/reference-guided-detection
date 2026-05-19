@@ -88,24 +88,22 @@ run_experiment() {
   mkdir -p "$(dirname "$log")"
 
   echo ""
-  echo "----------------------------------------"
-  echo "Running: $name"
+  echo "Starting experiment: $name"
   echo "Folder: $folder"
   echo "Config: $config"
-  echo "Log: $log"
-  echo "Time: $(date '+%Y-%m-%d %H:%M:%S')"
-  echo "----------------------------------------"
+  echo "Log file: $log"
 
   CUDA_VISIBLE_DEVICES=0 python "$TRAIN" --config "$SCRIPT_DIR/$config" \
     2>&1 | tee "$log"
 
   local exit_code="${PIPESTATUS[0]}"
   if [[ "$exit_code" -ne 0 ]]; then
-    echo "Experiment $name failed with exit code $exit_code. Check $log"
+    echo "Experiment failed: $name (exit code $exit_code)"
+    echo "See log: $log"
     return "$exit_code"
   fi
 
-  echo "Experiment $name finished."
+  echo "Finished: $name"
 }
 
 # Main part
@@ -118,7 +116,7 @@ for entry in "${RUNS[@]}"; do
   name="${key##*/}"
 
   if ! should_run "$name"; then
-    echo "Skipping: $key"
+    echo "Skipping $key"
     continue
   fi
 
@@ -126,17 +124,14 @@ for entry in "${RUNS[@]}"; do
     :
   else
     FAILED+=("$key")
-    echo "Continuing with next experiment."
+    echo "Trying next experiment..."
   fi
 done
 
 echo ""
-echo "----------------------------------------"
 echo "All experiments finished."
 if [[ ${#FAILED[@]} -eq 0 ]]; then
-  echo "Status: all experiments passed."
+  echo "Everything finished without errors."
 else
-  echo "Status: failed experiments: ${FAILED[*]}"
+  echo "Failed experiments: ${FAILED[*]}"
 fi
-echo "Time: $(date '+%Y-%m-%d %H:%M:%S')"
-echo "----------------------------------------"

@@ -402,10 +402,10 @@ private class GalleryEmbeddingCache(
 }
 
 private const val TOP_K = 3
-private const val CONSISTENCY_BONUS = 0.1f
+private const val CONSISTENCY_BONUS = 0.75f
 
 /** Smallest cosine similarity that still counts as a valid ROI match. */
-private const val SIMILARITY_THRESHOLD = 0.62f
+private const val SIMILARITY_THRESHOLD = 0.64f
 
 /**
  * Final class score based on the best score and the top-k average.
