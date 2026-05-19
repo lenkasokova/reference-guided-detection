@@ -67,7 +67,7 @@ class FpsBenchmarkTest {
         val ctx = InstrumentationRegistry.getInstrumentation().targetContext
 
         log("══════════════════════════════════════════════════")
-        log("One-Shot Detector – FPS Benchmark")
+        log("FPS benchmark")
         log("  detection  : $detectionAsset")
         log("  embedding  : $embeddingAsset ($embeddingTag)")
         log("  device     : ${device.label}")
@@ -78,22 +78,22 @@ class FpsBenchmarkTest {
         val detector = MediaPipeDetectionWrapper(ctx, detectionAsset, device)
         val embedder = createEmbeddingWrapper(ctx, embeddingAsset, embeddingTag, device)
 
-        log("Computing gallery embeddings (not timed)...")
+        log("Building gallery embeddings...")
         val gallery = buildGallery(ctx, embedder)
-        log("Gallery ready: ${gallery.size}/${galleryAssets.size} embeddings")
+        log("Gallery ready: ${gallery.size}/${galleryAssets.size}")
 
         val queryFrame = loadAsset(ctx, queryAsset)
             ?: Bitmap.createBitmap(640, 480, Bitmap.Config.ARGB_8888).also {
-                log("WARN: query asset not found, using blank 640×480 bitmap")
+                log("Query image not found, using blank 640x480 image")
             }
-        log("Query frame: ${queryFrame.width}×${queryFrame.height}")
+        log("Query frame: ${queryFrame.width}x${queryFrame.height}")
 
         // Warmup — not recorded
-        log("Warming up ($warmupFrames frames)...")
+        log("Warmup: $warmupFrames frames")
         repeat(warmupFrames) { runFrame(detector, embedder, gallery, queryFrame) }
 
         // Measurement
-        log("Measuring ($measureFrames frames)...")
+        log("Measure: $measureFrames frames")
         val totalSamples   = DoubleArray(measureFrames)
         val detectSamples  = DoubleArray(measureFrames)
         val embedSamples   = DoubleArray(measureFrames)
@@ -123,15 +123,15 @@ class FpsBenchmarkTest {
 
         log("══════════════════════════════════════════════════")
         log("Results ($measureFrames frames, gallery=${gallery.size})")
-        log("  Avg detections/frame : ${"%.1f".format(detCounts.average())}")
+        log("  Avg detections : ${"%.1f".format(detCounts.average())}")
         log("  Detection   : ${stats(detectSamples)}")
         log("  Embed+Crop  : ${stats(embedSamples)}")
         log("  Gallery cmp : ${stats(compareSamples)}")
-        log("  Total/frame : ${stats(totalSamples)}")
-        log("  Smoothed processing  : ${fmt(smoothedMs)}  (EMA α=$SMOOTHING_ALPHA)")
-        log("  Adaptive cycle       : ${fmt(adaptiveCycleMs)}  (min=${fmt(MIN_CYCLE_MS)}, headroom=×$HEADROOM_FACTOR)")
-        log("  ► Raw FPS            : ${"%.2f".format(rawFps)}  (1000 / mean)")
-        log("  ► Live-loop FPS      : ${"%.2f".format(adaptiveFps)}  (1000 / adaptiveCycle)")
+        log("  Total       : ${stats(totalSamples)}")
+        log("  Smoothed    : ${fmt(smoothedMs)}")
+        log("  Cycle       : ${fmt(adaptiveCycleMs)}")
+        log("  Raw FPS     : ${"%.2f".format(rawFps)}")
+        log("  Live FPS    : ${"%.2f".format(adaptiveFps)}")
         log("══════════════════════════════════════════════════")
 
         queryFrame.recycle()
@@ -194,7 +194,7 @@ class FpsBenchmarkTest {
 
     // Statistics
 
-    /** One-line summary: mean, p50, p95, p99 */
+    /** Short stats line: avg, p50, p95, p99. */
     private fun stats(samples: DoubleArray): String {
         val sorted = samples.sorted()
         val mean   = sorted.average()

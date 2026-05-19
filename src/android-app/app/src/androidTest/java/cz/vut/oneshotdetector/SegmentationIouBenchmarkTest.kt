@@ -84,16 +84,16 @@ class SegmentationIouBenchmarkTest {
         ).apply { mkdirs() }
 
         log("══════════════════════════════════════════════════")
-        log("Segmentation IoU benchmark")
+        log("Segmentation IoU test")
         log("  baseline : ${modelPairs.first().label}")
         log("  variants : ${modelPairs.drop(1).joinToString { it.label }}")
         val samples = listSamples(ctx)
 
-        log("  directory: $imageAssetDirectory")
+        log("  folder   : $imageAssetDirectory")
         log("  samples  : ${samples.size}")
         log("  tap      : (${formatFloat(tapNormX)}, ${formatFloat(tapNormY)})")
         log("  device   : ${device.label}")
-        log("  outDir   : ${outDir.absolutePath}")
+        log("  output   : ${outDir.absolutePath}")
         log("══════════════════════════════════════════════════")
 
         require(samples.isNotEmpty()) { "No image assets found under $imageAssetDirectory" }
@@ -121,10 +121,10 @@ class SegmentationIouBenchmarkTest {
         File(outDir, "cases.tsv").writeText(buildCasesTsv(cases))
 
         log(summary)
-        log("Wrote ${File(outDir, "summary.txt").absolutePath}")
-        log("Wrote ${File(outDir, "cases.tsv").absolutePath}")
+        log("Saved ${File(outDir, "summary.txt").absolutePath}")
+        log("Saved ${File(outDir, "cases.tsv").absolutePath}")
 
-        assertTrue("Expected per-case results to be produced", cases.isNotEmpty())
+        assertTrue("Expected some results", cases.isNotEmpty())
     }
 
     private fun runAllPairs(
@@ -202,7 +202,7 @@ class SegmentationIouBenchmarkTest {
     private fun buildSummary(cases: List<CaseResult>): String {
         val grouped = cases.groupBy { it.variantLabel }
         val sb = StringBuilder()
-        sb.appendLine("Segmentation IoU downgrade benchmark")
+        sb.appendLine("Segmentation IoU test")
         sb.appendLine("date=${SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(Date())}")
         sb.appendLine("device=$device")
         sb.appendLine("baseline=${modelPairs.first().label}")
@@ -230,7 +230,7 @@ class SegmentationIouBenchmarkTest {
             sb.appendLine()
         }
 
-        sb.appendLine("Per-case results")
+        sb.appendLine("Case results")
         cases.forEach { sb.appendLine(formatCase(it)) }
         return sb.toString()
     }

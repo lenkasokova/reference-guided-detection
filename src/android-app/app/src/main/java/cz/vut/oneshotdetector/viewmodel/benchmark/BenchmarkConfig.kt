@@ -10,25 +10,20 @@ import cz.vut.oneshotdetector.viewmodel.model.ModelType
 import cz.vut.oneshotdetector.viewmodel.model.ModelVariant
 
 /**
- * Central, immutable configuration for a benchmark run.
+ * Simple settings for one benchmark run.
  *
- * All parameters have sensible defaults so a call-site can override only what matters.
- * No benchmark logic reads hard-coded values — every knob lives here.
+ * Most values already have defaults, so you only change what you need.
  *
- * @param datasetAssetPath       Sub-folder inside assets/ containing input images.
- * @param fallbackImageSize      Side length of the synthetic bitmap used when the dataset is empty.
- * @param warmUpRuns             Passes to run before measurement begins (not recorded).
- * @param measurementRuns        Timed passes per model (must be ≥ 20 for p95/p99).
- * @param device                 Execution provider applied to every session in this run.
- * @param computePercentiles     Compute p95 and p99 (requires measurementRuns ≥ 20).
- * @param separateEmbeddingPhases When true, the embedding runner reports embedding time and
- *                                cosine-similarity time as two separate statistics.
- * @param decoderUseCachedEncoder When true, the decoder runner pre-computes encoder embeddings
- *                                (un-timed) and measures only the decoder pass, mirroring
- *                                the cached-encoder production path.
- * @param maxDatasetImages       Upper limit on how many dataset images are loaded per run.
- * @param variantOverrides       Per-type model variant overrides. If a type is not listed
- *                               here, the code uses the first variant from AVAILABLE_VARIANTS.
+ * @param datasetAssetPath folder in `assets/` with the input images
+ * @param fallbackImageSize size of the fake image used when the dataset is empty
+ * @param warmUpRuns runs before measuring
+ * @param measurementRuns measured runs for each model
+ * @param device device used for inference
+ * @param computePercentiles if true, also calculate p95 and p99
+ * @param separateEmbeddingPhases if true, embedding and similarity are measured separately
+ * @param decoderUseCachedEncoder if true, only the decoder step is timed
+ * @param maxDatasetImages max number of dataset images loaded in one run
+ * @param variantOverrides custom model variant per model type
  */
 data class BenchmarkConfig(
     val datasetAssetPath: String = "data",
@@ -42,7 +37,7 @@ data class BenchmarkConfig(
     val maxDatasetImages: Int = 10,
     val variantOverrides: Map<ModelType, ModelVariant> = emptyMap()
 ) {
-    /** Returns the active model variant for the given type. */
+    /** Gets the selected model variant for this type. */
     fun variantFor(type: ModelType): ModelVariant =
         variantOverrides[type]
             ?: AVAILABLE_VARIANTS[type]?.firstOrNull()
@@ -52,5 +47,5 @@ data class BenchmarkConfig(
         get() = "${warmUpRuns}w · ${measurementRuns}r · ${device.label}"
 }
 
-/** Default configuration used when no custom config is provided. */
+/** Default benchmark settings. */
 val DEFAULT_BENCHMARK_CONFIG = BenchmarkConfig()

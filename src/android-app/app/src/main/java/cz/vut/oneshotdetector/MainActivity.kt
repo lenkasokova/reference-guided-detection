@@ -21,12 +21,9 @@ import cz.vut.oneshotdetector.view.theme.OneShotDetectorTheme
 
 /**
  * @author Bc. Lenka Šoková
- * Mobile application for plant detection and identification.
+ * Main screen entry for the app.
  *
- * The app allows users to take photos of plants, which are then processed
- * using a  model to identify the plant species. Users can also view detailed information ab
- * out the identified plants, including care instructions and similar species.
- *
+ * It starts the Compose UI and opens the app navigation.
  */
 
 class MainActivity : ComponentActivity() {

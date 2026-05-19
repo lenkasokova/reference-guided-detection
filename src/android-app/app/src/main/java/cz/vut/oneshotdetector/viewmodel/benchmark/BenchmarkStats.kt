@@ -8,7 +8,7 @@ package cz.vut.oneshotdetector.viewmodel.benchmark
 import kotlin.math.sqrt
 
 /**
- * Descriptive statistics computed from a list of timing samples (in milliseconds).
+ * Basic timing stats from benchmark samples in milliseconds.
  */
 data class BenchmarkStats(
     val meanMs: Double,
@@ -22,10 +22,10 @@ data class BenchmarkStats(
 ) {
     companion object {
         /**
-         * Computes benchmark statistics from the given sample list.
+         * Builds stats from the measured times.
          *
-         * @param samplesMs        Timing samples in milliseconds (Double for sub-ms precision).
-         * @param computePercentiles Whether to compute p95 and p99.
+         * @param samplesMs measured times in milliseconds
+         * @param computePercentiles if true, also calculate p95 and p99
          */
         fun from(samplesMs: List<Double>, computePercentiles: Boolean = true): BenchmarkStats {
             require(samplesMs.isNotEmpty()) { "Cannot compute stats from an empty sample list." }
@@ -48,8 +48,7 @@ data class BenchmarkStats(
         }
 
         /**
-         * Linear interpolation between adjacent sorted values.
-         * Index is computed as p/100 × (n − 1).
+         * Gets a percentile from sorted values using simple interpolation.
          */
         private fun percentile(sorted: List<Double>, p: Double): Double {
             val idx = p / 100.0 * (sorted.size - 1)
@@ -61,6 +60,6 @@ data class BenchmarkStats(
     }
 }
 
-/** Formats a ms value for compact display: 2 decimal places below 10 ms, 1 above. */
+/** Formats milliseconds in a short readable way. */
 fun Double.formatMs(): String =
     if (this < 10.0) "%.2f ms".format(this) else "%.1f ms".format(this)

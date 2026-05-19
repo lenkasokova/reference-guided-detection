@@ -22,12 +22,12 @@ import kotlinx.coroutines.withContext
 import kotlin.math.roundToInt
 
 /**
- * ROI detection service backed by a SAM-compatible encoder + decoder pair.
+ * Segmentation service using a SAM-style encoder and decoder.
  */
 
 data class SegmentAtPointResult(
     val croppedBitmap: Bitmap,
-    /** Normalised bounding box in the source image, ordered as ymin, xmin, ymax, xmax. */
+    /** Box in the source image as `ymin, xmin, ymax, xmax`. */
     val box: FloatArray,
     val inferenceTimeMs: Long
 )
@@ -46,10 +46,10 @@ class SegmentationService(
     private var loadedEncoderDevice: InferenceDevice? = null
     private var loadedDecoderDevice: InferenceDevice? = null
 
-    /** Cached encoder output keyed by bitmap identity hash. */
+    /** Cached encoder output for the current bitmap. */
     private var encoderCache: Pair<Int, EncoderOutput>? = null
 
-    // ── DetectionService ───────────────────────────────────────────────────
+    // DetectionService
 
     override suspend fun detectImage(targetImageUri: String): DetectionResult =
         withContext(Dispatchers.Default) {
@@ -70,10 +70,10 @@ class SegmentationService(
         imageHeight     = bitmap.height
     )
 
-    // Tap-to-segment
+    // Tap to segment
 
     /**
-     * Segments the object at the given normalized x and y coordinates in the range 0 to 1.
+     * Segments the object at the tapped position.
      */
     suspend fun segmentAtPoint(
         bitmap: Bitmap,
@@ -101,7 +101,7 @@ class SegmentationService(
     }
 
     /**
-     * Pre-encodes the bitmap and stores the result in cache.
+     * Encodes the image early and saves it in cache.
      */
     suspend fun preEncodeImage(
         bitmap: Bitmap,
@@ -115,7 +115,7 @@ class SegmentationService(
         onStatus?.invoke("Ready — tap to segment.")
     }
 
-    // Wrapper lifecycle
+    // Wrapper setup
 
     private fun getOrCreateWrappers(): Pair<EncoderWrapper, DecoderWrapper> {
         val encoderVariant = store.getActiveVariant(ModelType.SegmentEncoder)
@@ -130,7 +130,7 @@ class SegmentationService(
         if (encoderWrapper != null &&
             (loadedEncoderPath != encoderPath || loadedEncoderTag != encoderTag || loadedEncoderDevice != encoderDevice)) {
             encoderWrapper?.close(); encoderWrapper = null
-            encoderCache = null   // cached embedding belongs to the old encoder / device
+            encoderCache = null   // old cache does not match the current encoder or device
         }
         if (decoderWrapper != null &&
             (loadedDecoderPath != decoderPath || loadedDecoderTag != decoderTag || loadedDecoderDevice != decoderDevice)) {
@@ -150,7 +150,7 @@ class SegmentationService(
         return enc to dec
     }
 
-    // Crop extraction
+    // Crop output
 
     private fun extractCrop(
         bitmap: Bitmap,
@@ -165,9 +165,8 @@ class SegmentationService(
         val bestIdx = selectMaskIndex(dec, tapX, tapY, enc.scaledW, enc.scaledH)
         val bestMask = dec.masks.copyOfRange(bestIdx * dec.planeSize, (bestIdx + 1) * dec.planeSize)
 
-        // Ignore padded encoder area outside the resized image content.
-        // FP16 models can produce small positive noise there, which would inflate
-        // the crop box all the way to the image borders after scale-back.
+        // Skip padded area outside the real resized image.
+        // Some FP16 models add a bit of noise there and make the crop too large.
         var yMin = enc.scaledH; var yMax = -1; var xMin = enc.scaledW; var xMax = -1
         for (y in 0 until enc.scaledH) {
             for (x in 0 until enc.scaledW) {

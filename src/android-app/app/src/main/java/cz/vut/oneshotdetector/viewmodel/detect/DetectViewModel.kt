@@ -472,8 +472,8 @@ class DetectViewModel(
         }
     }
 
-    /** Compares every detected ROI against the gallery and stores per-box matches.
-     *  This does not change detectGalleryMatch, so the result panel stays unchanged. */
+    /** Compares all detected ROIs with the gallery and stores matches for each box.
+     *  It does not change `detectGalleryMatch`, so the main result panel stays the same. */
     suspend fun matchDetectedRoisToGallery(sourceBitmap: Bitmap) {
         val detections = state.detections
         if (detections.isEmpty()) return

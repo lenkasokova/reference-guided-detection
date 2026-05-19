@@ -14,7 +14,7 @@ class BenchmarkStatsTest {
 
     private fun assertClose(expected: Double, actual: Double, delta: Double = 1e-9) {
         assertTrue(
-            "Expected $expected ± $delta but was $actual",
+            "Expected $expected, got $actual",
             abs(expected - actual) <= delta
         )
     }

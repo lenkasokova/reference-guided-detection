@@ -488,4 +488,16 @@ cd src/android-app
 | `detectionModel/` | EfficientDet-Lite0 or Lite2 | `.tflite` (MediaPipe) |
 | `data/plants/` | Reference plant images for the built-in gallery | `.jpg` / `.png` |
 
+### Android app directories
+
+Main app code is in `src/android-app/app/src/main/`.
+
+| Folder | What is inside |
+|---|---|
+| `assets/` | App assets, mainly models and sample plant data. |
+| `java/cz/vut/oneshotdetector/MainActivity.kt` | App start file. |
+| `java/cz/vut/oneshotdetector/model/` | Data layer, database code, and model inference wrappers. |
+| `java/cz/vut/oneshotdetector/view/` | UI screens, components, layout helpers, and theme code. |
+| `java/cz/vut/oneshotdetector/viewmodel/` | Screen state and logic for detect, gallery, model selection, and benchmarks. |
+
 ---

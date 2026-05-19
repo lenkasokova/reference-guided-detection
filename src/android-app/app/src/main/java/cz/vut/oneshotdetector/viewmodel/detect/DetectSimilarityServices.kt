@@ -17,7 +17,7 @@ data class SimilarityComparisonResult(
     val status: String
 )
 
-/** Best gallery match for a single detection box. */
+/** Best gallery match for one detection box. */
 data class DetectionMatch(
     val detection: Detection,
     val galleryLabel: String,
@@ -28,9 +28,9 @@ data class GalleryComparisonResult(
     val bestImage: GalleryImage?,
     val bestScore: Float?,
     val status: String,
-    /** The cropped ROI bitmap that produced the best score. This is only set for ROI comparisons. */
+    /** ROI crop with the best score. Only used for ROI comparisons. */
     val bestRoiCrop: Bitmap? = null,
-    /** Per-detection best gallery matches; only set by ROI-based comparisons. */
+    /** Best gallery match for each detection. Only used for ROI comparisons. */
     val detectionMatches: List<DetectionMatch> = emptyList()
 )
 
@@ -306,7 +306,7 @@ class DefaultGallerySimilarityService(
             val notes = mutableListOf<String>()
             val roiEmbedding = embeddingEngine.computeEmbedding(roiBitmap, notes) ?: return@forEach
 
-            // Find the best gallery match for this individual detection
+            // Find the best gallery match for this detection.
             var detBestScore: Float? = null
             var detBestImage: GalleryImage? = null
 
@@ -404,11 +404,11 @@ private class GalleryEmbeddingCache(
 private const val TOP_K = 3
 private const val CONSISTENCY_BONUS = 0.1f
 
-/** Minimum cosine similarity for a detection ROI to be forwarded as a valid match. */
+/** Smallest cosine similarity that still counts as a valid ROI match. */
 private const val SIMILARITY_THRESHOLD = 0.62f
 
 /**
- * score = max + α · (top-k mean − max)
+ * Final class score based on the best score and the top-k average.
  */
 private fun classScore(scores: List<Float>): Float {
 

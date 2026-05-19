@@ -36,7 +36,7 @@ fun CameraFlow(
 
     var selectedRoiCrop by remember { mutableStateOf<Bitmap?>(null) }
 
-    // Clear crop when switching away from detection modes or when resuming live
+    // Clear the crop when leaving detection modes or going back to live preview.
     LaunchedEffect(uiState.capturedImageUri, uiState.detectMode) {
         if (uiState.capturedImageUri == null ||
             (uiState.detectMode != DetectViewModel.DetectMode.Roi &&
@@ -48,28 +48,28 @@ fun CameraFlow(
         }
     }
 
-    // Sync segmented crop from state
+    // Keep the local crop in sync with the segmented result.
     LaunchedEffect(uiState.segmentedCrop, uiState.detectMode) {
         if (uiState.detectMode == DetectViewModel.DetectMode.Segment) {
             selectedRoiCrop = uiState.segmentedCrop
         }
     }
 
-    // Decode whole image into selectedRoiCrop when in WholeImage mode
+    // In WholeImage mode, use the full captured image as the selected crop.
     LaunchedEffect(uiState.capturedImageUri, uiState.detectMode) {
         if (uiState.detectMode != DetectViewModel.DetectMode.WholeImage) return@LaunchedEffect
         val uri = uiState.capturedImageUri ?: return@LaunchedEffect
         selectedRoiCrop = withContext(Dispatchers.IO) { decodeImageWithExif(context, uri.toUri()) }
     }
 
-    // Run ROI detection on the captured image
+    // Run ROI detection on the captured image.
     LaunchedEffect(uiState.capturedImageUri, uiState.roiDetectionTarget) {
         if (uiState.capturedImageUri == null) return@LaunchedEffect
         if (uiState.viewMode == DetectViewModel.ViewMode.CameraPreview) return@LaunchedEffect
         viewModel.detectAndCacheRoi()
     }
 
-    // After detections arrive, compare each ROI crop to gallery to get per-box labels + scores
+    // After detection, compare each ROI with the gallery.
     LaunchedEffect(uiState.detections, uiState.capturedImageUri) {
         if (uiState.detectMode != DetectViewModel.DetectMode.Roi) return@LaunchedEffect
         if (uiState.viewMode == DetectViewModel.ViewMode.CameraPreview) return@LaunchedEffect
@@ -80,7 +80,7 @@ fun CameraFlow(
         viewModel.autoSelectBestRoi(bitmap)
     }
 
-    // Pre-encode captured image for segmentation
+    // Encode the captured image before segmentation starts.
     LaunchedEffect(uiState.capturedImageUri, uiState.detectMode) {
         val uri = uiState.capturedImageUri ?: return@LaunchedEffect
         if (uiState.detectMode != DetectViewModel.DetectMode.Segment) return@LaunchedEffect

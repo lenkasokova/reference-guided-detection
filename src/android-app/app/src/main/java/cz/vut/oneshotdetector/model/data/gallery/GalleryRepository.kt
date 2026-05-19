@@ -174,7 +174,7 @@ class GalleryRepository(private val context: Context) {
         return uri
     }
 
-    /* Re-generates the embedding for every gallery image using the currently embedding model */
+    /* Recomputes embeddings for all gallery images with the current embedding model. */
     suspend fun recomputeAllEmbeddings(
         onProgress: suspend (done: Int, total: Int) -> Unit = { _, _ -> }
     ): Int = withContext(Dispatchers.IO) {
